@@ -1,0 +1,5 @@
+{
+  "[javascript][javascriptreact]": {
+    "editor.formatOnSave": true
+  }
+}
