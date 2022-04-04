@@ -6,20 +6,29 @@ import {
   Meta,
   Scripts,
   ScrollRestoration,
+  json
 } from 'remix'
+import type { 
+  LinksFunction, MetaFunction, 
+  LoaderFunction, ActionFunction, 
+  HeadersFunction 
+} from "remix"
 
 import styles from '~/styles/app.css'
 
-export const links = () => {
+export const links: LinksFunction = () => {
   return [{ rel: 'stylesheet', href: styles }]
 }
 
-export const meta = () => {
+export const meta: MetaFunction = () => {
   return {
     description: 'A cool blog built with remix',
     keywords: 'remix, react, javascript',
   }
 }
+
+export const loader: LoaderFunction = () => {
+ return json("{"test": "demo"}");
 
 export default function App() {
   return (
