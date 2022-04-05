@@ -7,32 +7,21 @@ type LoginForm = {
   password: string;
 };
 
-// Login user
-export async function login({ email, password }) {
-  const user = await db.user.findUnique({
-    where: { email },
-  })
-
-  if (!user) {
-    return null
-  }
-
-  // Check password
-  const isCorrectPassword = await bcrypt.compare(password, user.passwordHash)
-
-  if (!isCorrectPassword) {
-    return null
-  }
-
-  return user
+// Login User
+export async function login({ email, password }: LoginForm) {
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) return null;
+  const isCorrectPassword = await bcrypt.compare(password, user.passwordHash);
+  if (!isCorrectPassword) return null;
+  return user;
 }
 
 // Register new user
-export async function register({ username, password }) {
-  const passwordHash = await bcrypt.hash(password, 10)
+export async function register({ email, password }: LoginForm) {
+  let passwordHash = await bcrypt.hash(password, 10);
   return db.user.create({
-    data: { username, passwordHash },
-  })
+    data: { email, passwordHash },
+  });
 }
 
 // Logout user and destroy session
@@ -64,7 +53,7 @@ let { getSession, commitSession, destroySession } = createCookieSessionStorage({
 
 // Create user session
 export async function createUserSession(userId: string, redirectTo: string) {
-  const session = await storage.getSession()
+  const session = await getSession();
   session.set('userId', userId)
 
   return redirect(redirectTo, {
@@ -76,7 +65,7 @@ export async function createUserSession(userId: string, redirectTo: string) {
 
 // Get user session
 export function getUserSession(request: Request) {
-  return storage.getSession(request.headers.get('Cookie'))
+  return getSession(request.headers.get('Cookie'))
 }
 
 // Get logged in user
@@ -100,26 +89,6 @@ export async function getUser(request: Request) {
 
 
 
-
-export async function register({ username, password }: LoginForm) {
-  let passwordHash = await bcrypt.hash(password, 10);
-  return db.user.create({
-    data: { username, passwordHash },
-  });
-}
-
-export async function login({ username, password }: LoginForm) {
-  const user = await db.user.findUnique({ where: { username } });
-  if (!user) return null;
-  const isCorrectPassword = await bcrypt.compare(password, user.passwordHash);
-  if (!isCorrectPassword) return null;
-  return user;
-}
-
-export function getUserSession(request: Request) {
-  return getSession(request.headers.get("Cookie"));
-}
-
 export async function getUserId(request: Request) {
   let session = await getUserSession(request);
   let userId = session.get("userId");
@@ -131,7 +100,7 @@ export async function requireUserId(request: Request) {
   let session = await getUserSession(request);
   let userId = session.get("userId");
   if (!userId || typeof userId !== "string") throw redirect("/login");
-  return userId;
+  return redirect(`/users/${userId}`);
 }
 
 export async function getUser(request: Request) {
