@@ -37,12 +37,10 @@ export async function register({ username, password }) {
 
 // Logout user and destroy session
 export async function logout(request: Request) {
-  const session = await storage.getSession(request.headers.get('Cookie'))
-  return redirect('/auth/logout', {
-    headers: {
-      'Set-Cookie': await storage.destroySession(session),
-    },
-  })
+  let session = await getSession(request.headers.get("Cookie"));
+  return redirect("/login", {
+    headers: { "Set-Cookie": await destroySession(session) },
+  });
 }
 
 // Get session secret
@@ -146,13 +144,6 @@ export async function getUser(request: Request) {
   } catch {
     throw logout(request);
   }
-}
-
-export async function logout(request: Request) {
-  let session = await getSession(request.headers.get("Cookie"));
-  return redirect("/login", {
-    headers: { "Set-Cookie": await destroySession(session) },
-  });
 }
 
 export async function createUserSession(userId: string, redirectTo: string) {
